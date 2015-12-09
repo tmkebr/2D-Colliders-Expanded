@@ -1,7 +1,10 @@
-# 2D-Capsule-Collider
+# 2D-Colliders-Expanded
 Created by Timothy Kebr, October 2015
 
-I often found myself wanting for a 2D version of Unity's 3D Capsule Collider. This is a unity 2D Collision asset created in an attempt to provide a native-feeling solution to this issue. The script is attached to a GameObject and creates a compound 2D Capsule Collider from 2D Circle and Box colliders.
 
-Features:
-isTrigger, Offset, Radius, Height, Rotation Axis
+Unity's default 2D colliders are lacking. The shape you want is very complicated to create with just the default colliders? Need some curves? 2D Colliders Expanded seeks to fill some of those gaps in a native-feeling way.
+
+Right now, the project adds the following new colliders to Unity's 2D Collision system:
+  - Curved Edge Collider 2D
+  - Semi-Circle Collider 2D
+  - Capsule Collider 2D
