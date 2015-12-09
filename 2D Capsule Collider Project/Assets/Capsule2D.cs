@@ -6,6 +6,7 @@ using System.Linq;
 ///// 
 // Unity 2D Capsule Collider
 //   - Creates a capsule shaped collider much like the 3D capsule collider
+//   - Uses 2D Circle Colliders and 2D Box Collider to make compound collider
 //   - Provides in-editor control to make it feel as native as possible
 //
 // timothy Kebr, tmkebr@gmail.com
@@ -25,10 +26,13 @@ public class Capsule2D : MonoBehaviour
     public enum Direction { X_Axis, Y_Axis };
     public Direction direction = Direction.X_Axis;
 
+
+    // These variables will be used to manage the colliders
     List<CircleCollider2D> circles;
     BoxCollider2D box;
     Vector2 oldCenter;
     GameObject boxObject, circle0Object, circle1Object;
+
 
     // Use this for initialization
     void OnValidate()
@@ -38,7 +42,7 @@ public class Capsule2D : MonoBehaviour
         box = GetComponentInChildren<BoxCollider2D>();
 
 
-        // if there aren't any colliders created, then make them as a compound collider
+        // if there aren't any game objects created, then make them as a compound game object
         if (transform.childCount > 0)
         {
             boxObject = transform.GetChild(0).gameObject;
@@ -47,7 +51,7 @@ public class Capsule2D : MonoBehaviour
         }
 
         ////
-        // Make and position the box
+        // Make and position the box, and update the offset value based on the box size
         ////
         makeBox();
         float offset = ((box.size.x) / 2);
@@ -84,9 +88,8 @@ public class Capsule2D : MonoBehaviour
             boxObject.AddComponent<BoxCollider2D>();
             box = boxObject.GetComponent<BoxCollider2D>();
         }
-        //boxObject = transform.GetChild(0).gameObject;
         
-        // Adjusts the box's size, nesting, and trigger values
+        // Adjusts the box's size, nesting, name, and trigger values
         box.size = new Vector2((height - radius), radius);
         box.isTrigger = isTrigger;
         boxObject.transform.SetParent(this.transform, false);
@@ -101,6 +104,7 @@ public class Capsule2D : MonoBehaviour
     void makeCircle(int i, float offset)
     {
         // checks if circles have already been created
+        // if they have been, just update the radius and offset values, don't bother making new circles
         if (circles.ElementAtOrDefault(i) != null)
         {
             circles[i].radius = radius / 2;
@@ -111,20 +115,20 @@ public class Capsule2D : MonoBehaviour
         else
         {
 
-            // create the circles game objects
+            // Create the circles
             if (i == 0) {
+                // if the index is 0, make the first circle and add it to the list, set up nesting, and naming
                 circle0Object = new GameObject();
-            }
-            else {
-                circle1Object = new GameObject();
-            }
-
-            // add the circles to the list of circles
-            if (i == 0) {
                 circles.Insert(i, circle0Object.AddComponent<CircleCollider2D>());
+                circle0Object.transform.SetParent(boxObject.transform, false);
+                circle0Object.name = ("circle" + i);
             }
             else {
+                // if the index is 1, make the second circle and add it to the list, set up nesting, and naming
+                circle1Object = new GameObject();
                 circles.Insert(i, circle1Object.AddComponent<CircleCollider2D>());
+                circle1Object.transform.SetParent(boxObject.transform, false);
+                circle1Object.name = ("circle" + i);
             }
 
             // set the radii and the offsets of the circles
@@ -132,21 +136,8 @@ public class Capsule2D : MonoBehaviour
             circles[i].offset = new Vector2(offset, 0);
         }
 
-        // set the trigger values
-        circles[i].isTrigger = isTrigger;
-
-        // create the nesting
-            if (i == 0)
-            {
-                circle0Object.transform.SetParent(boxObject.transform, false);
-                circle0Object.name = ("circle" + i);
-            }
-            else
-            {
-                circle1Object.transform.SetParent(boxObject.transform, false);
-                circle1Object.name = ("circle" + i);
-            }
-        
+        // update the trigger values
+        circles[i].isTrigger = isTrigger;       
     }
 
     /// <summary>
