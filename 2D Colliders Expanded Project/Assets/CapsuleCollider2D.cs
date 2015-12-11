@@ -11,7 +11,7 @@ public class CapsuleCollider2D : MonoBehaviour {
     public bool isTrigger;
     public Vector2 Center;
     public float radius;
-    public float height;
+    public float height;    
     public enum Direction { X_Axis, Y_Axis };
     public Direction direction = Direction.X_Axis;
 
@@ -35,7 +35,10 @@ public class CapsuleCollider2D : MonoBehaviour {
 
         //caps = new List<SemiCircleCollider2D>(GetComponentsInChildren<SemiCircleCollider2D>());
         //edges = new List<EdgeCollider2D>(GetComponentsInChildren<EdgeCollider2D>());
-        diameter = radius * 2;
+        float adjRadius = radius;
+        adjRadius = Mathf.Clamp(radius, 0f, height/2);
+        diameter = adjRadius * 2;
+        
 
         if (transform.childCount > 0)
         {
@@ -61,7 +64,7 @@ public class CapsuleCollider2D : MonoBehaviour {
     void makeFirstEdge()
     {
         // creates the box if one doesn't already exist
-        if (edge1 == null)
+        if (edge1 == null && height > 1)
         {
             Debug.Log("Making First Edge");
             edge1Object = new GameObject();
@@ -86,7 +89,7 @@ public class CapsuleCollider2D : MonoBehaviour {
     void makeSecondEdge()
     {
         // creates the box if one doesn't already exist
-        if (edge2 == null)
+        if (edge2 == null && height > 1)
         {
             Debug.Log("Making Second Edge");
             edge2Object = new GameObject();
@@ -167,8 +170,8 @@ public class CapsuleCollider2D : MonoBehaviour {
         {
             edge1.offset = Center;
             edge2.offset = Center;
-            bottomCap.offset = bottomCap.offset + Center;
-            topCap.offset = topCap.offset + Center;
+            bottomCap.offset = bottomCap.offset - Center;
+            topCap.offset = Center;
         }
     }
 
