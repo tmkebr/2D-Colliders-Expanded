@@ -3,6 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 //using System.Linq;
 
+
+/////////////////////
+//
+// 2D Capsule Collider
+//  - A unibody version of my 2D Capsule Collider. 
+//  - Uses my 2D SemiCirlce Colliders and 2D Edge Colliders to make a capsule
+//
+// timothy Kebr, tmkebr@gmail.com
+// Originally created 12/08/2015
+/////////////////////
+
 // executing in edit mode allows us to see the changes in real time without running the game
 [ExecuteInEditMode]
 public class CapsuleCollider2D : MonoBehaviour {
@@ -16,8 +27,9 @@ public class CapsuleCollider2D : MonoBehaviour {
     public Direction direction = Direction.X_Axis;
 
     float diameter;
-    int smoothingFactor = 30;
+    int smoothingFactor = 30; // how smooth should the edges be when making the capsule's caps?
     Vector2 oldCenter;
+    bool oldTrigger;
 
     SemiCircleCollider2D topCap, bottomCap;
     EdgeCollider2D edge1, edge2;
@@ -55,6 +67,7 @@ public class CapsuleCollider2D : MonoBehaviour {
 
         centerColliders();
         rotateColliders();
+        updateTriggers();
     }
 
 
@@ -63,52 +76,79 @@ public class CapsuleCollider2D : MonoBehaviour {
     /// </summary>
     void makeFirstEdge()
     {
-        // creates the box if one doesn't already exist
-        if (edge1 == null && height > 1)
+        // creates the edge if one doesn't already exist and we need it (height > diameter)
+        if (edge1 == null)
         {
             Debug.Log("Making First Edge");
             edge1Object = new GameObject();
+            edge1Object.name = "2D Capsule Collider";
             edge1Object.AddComponent<EdgeCollider2D>();
             edge1 = edge1Object.GetComponent<EdgeCollider2D>();
+            edge1.transform.SetParent(this.transform, false);
+            //edge1.isTrigger = isTrigger;
         }
-
-        Debug.Log("Adjusting First Edge");
-        if (height > diameter)
+        
+        else if (height > diameter)
         {
+            Debug.Log("Adjusting First Edge");
+            // if the collider has been disabled, enable it once again
+            if (!edge1.enabled)
+            {
+                edge1.enabled = true;
+            }
             Vector2[] edge1Points = new Vector2[2];
             edge1Points[0] = new Vector2(0, -(height - diameter));
             edge1Points[1] = new Vector2(0, 0);
             edge1.points = edge1Points;
+            //edge1.isTrigger = isTrigger;
         }
-
-        edge1.isTrigger = isTrigger;
-        edge1.transform.SetParent(this.transform, false);
-        edge1Object.name = "2D Capsule Collider";
+            else
+            {
+            // else the semicircles cover the capsule shape already:
+            // disable the collider since we won't need it
+                if (edge1.enabled)
+                {
+                    edge1.enabled = false;
+                }
+            }
     }
 
     void makeSecondEdge()
     {
         // creates the box if one doesn't already exist
-        if (edge2 == null && height > 1)
+        if (edge2 == null)
         {
             Debug.Log("Making Second Edge");
             edge2Object = new GameObject();
+            edge2Object.name = "Edge2";
             edge2Object.AddComponent<EdgeCollider2D>();
             edge2 = edge2Object.GetComponent<EdgeCollider2D>();
+            edge2Object.transform.SetParent(edge1Object.transform, false);   
+            //edge2.isTrigger = isTrigger;
         }
-
-        Debug.Log("Adjusting Second Edge");
-        if (height > diameter)
+        else if (height > diameter)
         {
+            Debug.Log("Adjusting Second Edge");
+            // if the collider has been disabled, enable it once again
+            if (!edge2.enabled)
+            {
+                edge2.enabled = true;
+            }
             Vector2[] edge2Points = new Vector2[2];
             edge2Points[0] = new Vector2(diameter, 0);
             edge2Points[1] = new Vector2(diameter, -(height - diameter));
             edge2.points = edge2Points;
+            //edge2.isTrigger = isTrigger;
         }
-
-        edge2.isTrigger = isTrigger;
-        edge2Object.transform.SetParent(edge1Object.transform, false);
-        edge2Object.name = "Edge2";
+        else
+        {
+            // else the semicircles cover the capsule shape already:
+            // disable the collider since we won't need it
+            if (edge1.enabled)
+            {
+                edge2.enabled = false;
+            }
+        }        
     }
 
     void makeTopCap()
@@ -124,7 +164,7 @@ public class CapsuleCollider2D : MonoBehaviour {
             Debug.Log("Adjusting Top Cap");
             topCap.smoothingFactor = smoothingFactor;
             topCap.diameter = diameter;
-            topCap.isTrigger = isTrigger;
+            //topCap.isTrigger = isTrigger;
             topCapObject.transform.SetParent(edge1Object.transform, false);
             topCapObject.name = "Top Cap";
         }
@@ -150,7 +190,7 @@ public class CapsuleCollider2D : MonoBehaviour {
             bottomCap.diameter = diameter;
             bottomCapObject.transform.localEulerAngles = new Vector3(0, 0, 180);
             bottomCap.offset = new Vector2(-diameter, height - diameter);
-            bottomCap.isTrigger = isTrigger;
+            //bottomCap.isTrigger = isTrigger;
             bottomCapObject.transform.SetParent(edge1Object.transform, false);
             bottomCapObject.name = "Bottom Cap";
         }
@@ -166,6 +206,7 @@ public class CapsuleCollider2D : MonoBehaviour {
     /// </summary>
     void centerColliders()
     {
+        // center the colliders only if the collider center value has been changed
         if (oldCenter != Center)
         {
             edge1.offset = Center;
@@ -190,10 +231,23 @@ public class CapsuleCollider2D : MonoBehaviour {
         }
     }
 
-    // hack to check if the center value has changed
+    void updateTriggers()
+    {
+        // update the trigger values only if the isTrigger box has been changed
+        if (oldTrigger != isTrigger)
+        {
+            edge1.isTrigger = isTrigger;
+            edge2.isTrigger = isTrigger;
+            topCap.isTrigger = isTrigger;
+            bottomCap.isTrigger = isTrigger;
+        }
+    }
+
+    // hack to check if the center and trigger values have changed
     void onDrawGizmos()
     {
         oldCenter = Center;
+        oldTrigger = isTrigger;
     }
 
 }
