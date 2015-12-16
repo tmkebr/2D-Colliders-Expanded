@@ -15,6 +15,6 @@ Unity's default 2D colliders are lacking. Is the shape you want too complicated 
 
 **Usage:**
 - *Attach the script to a GameObject*
-- *The Collider will be created as a child of the GameObject*
+- *The collider will be created as you change the editor values*
 
 
