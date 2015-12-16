@@ -1,6 +1,6 @@
 ![alt tag](http://i.imgur.com/l1iqIHh.png)
 
-**A Unity2D Collision Improvement Project**
+_**A Unity2D Collision Improvement Project**_
 
 *Created by Timothy Kebr, October 2015*
 
