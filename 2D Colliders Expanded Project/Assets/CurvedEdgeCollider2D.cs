@@ -41,7 +41,7 @@ public class CurvedEdgeCollider2D : MonoBehaviour {
     void Update()
     {
         if (smoothingFactor < 1) {
-            Debug.LogError("A smoothing factor must be greater than or equal to 1");     
+            Debug.LogWarning("A smoothing factor must be greater than or equal to 1");     
         }
         else
         {
